@@ -58,3 +58,21 @@ body {
     border: none; border-radius: 10px; background: #ddd; cursor: pointer;
 }
 .btn-play:active { transform: scale(0.95); }
+
+/* Animaciones de agitar (Shake) */
+.shake-org {
+    animation: shakeLeft 0.3s infinite;
+}
+.shake-guest {
+    animation: shakeRight 0.3s infinite;
+}
+
+@keyframes shakeLeft {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(15deg); }
+}
+
+@keyframes shakeRight {
+    0%, 100% { transform: scaleX(-1) translateY(0) rotate(0deg); }
+    50% { transform: scaleX(-1) translateY(-30px) rotate(-15deg); }
+}
