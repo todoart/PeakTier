@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Desafío Callejero - Prueba</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <div class="bg-layer layer-1"></div> <div class="bg-layer layer-2"></div> <div class="bg-layer layer-3"></div> <div id="hud">
+            <div class="player-info">Org <span id="score-org">0</span></div>
+            <div class="title-emblem">DESAFÍO CALLEJERO</div>
+            <div class="player-info"><span id="score-guest">0</span> Inv</div>
+        </div>
+
+        <div id="battle-area">
+            <div id="hand-org" class="hand">✊</div> <div id="hand-guest" class="hand">✊</div> </div>
+
+        <div id="result-message" class="hidden">¡PREPÁRATE!</div>
+
+        <div id="controls">
+            <button class="btn-play" onclick="jugar('piedra')">✊ Piedra</button>
+            <button class="btn-play" onclick="jugar('papel')">✋ Papel</button>
+            <button class="btn-play" onclick="jugar('tijera')">✌️ Tijera</button>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
