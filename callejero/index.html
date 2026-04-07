@@ -26,7 +26,12 @@
         <div id="result-message" class="hidden"></div>
 
         <div id="controls-container">
-            <div id="queue">Tu combo: <span id="q1">_</span> <span id="q2">_</span> <span id="q3">_</span></div>
+            <div id="queue">
+                <div style="font-size: 14px; color: #aaa;">Principal | Reservas (Desempate)</div>
+                <span id="q0" class="slot-principal">_</span> 
+                <span id="q1" class="slot-reserva">_</span> 
+                <span id="q2" class="slot-reserva">_</span>
+            </div>
             <div id="controls">
                 <button class="btn-play" onclick="seleccionarJugada('piedra')">✊</button>
                 <button class="btn-play" onclick="seleccionarJugada('papel')">✋</button>
