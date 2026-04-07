@@ -6,7 +6,7 @@ const scoreOrgEl = document.getElementById('score-org');
 
 const jugadas = { 'piedra': '✊', 'papel': '✋', 'tijera': '✌️' };
 
-// SIMULACIÓN DE BASE DE DATOS: El Organizador ya dejó estas 3 jugadas.
+// BASE DE DATOS SIMULADA: [Principal, Reserva 1, Reserva 2]
 const comboOrganizador = ['papel', 'tijera', 'piedra']; 
 let comboInvitado = [];
 let oroInvitado = 0;
@@ -15,73 +15,85 @@ let oroOrg = 0;
 function seleccionarJugada(eleccion) {
     if (comboInvitado.length < 3) {
         comboInvitado.push(eleccion);
-        // Actualizar la interfaz visual del combo
-        document.getElementById(`q${comboInvitado.length}`).innerText = jugadas[eleccion];
+        document.getElementById(`q${comboInvitado.length - 1}`).innerText = jugadas[eleccion];
         
-        // Si ya eligió 3, arranca la película de la batalla automáticamente
         if (comboInvitado.length === 3) {
             document.getElementById('controls').classList.add('hidden');
-            ejecutarBatallaAsincrona();
+            iniciarDuelo(0); // Inicia con la jugada Principal (índice 0)
         }
     }
 }
 
-// Función auxiliar para crear pausas (ritmo de juego)
 const esperar = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function ejecutarBatallaAsincrona() {
-    for (let i = 0; i < 3; i++) {
-        // 1. Preparar ronda (manos en piedra y mensaje)
-        handOrg.innerText = jugadas['piedra'];
-        handGuest.innerText = jugadas['piedra'];
-        resultMessage.innerText = `RONDA ${i + 1}`;
-        resultMessage.style.color = "white";
-        resultMessage.classList.remove('hidden');
-
-        // 2. Activar la animación de agitar (dura 1 segundo: 2 repeticiones de 0.5s)
-        handOrg.classList.add('shake-org');
-        handGuest.classList.add('shake-guest');
-        
-        // Esperamos exactamente 1 segundo que dura la animación CSS
-        await esperar(1000); 
-
-        // 3. Detener animación y REVELAR JUGADAS (Tercer tiempo)
-        handOrg.classList.remove('shake-org');
-        handGuest.classList.remove('shake-guest');
-        handOrg.innerText = jugadas[comboOrganizador[i]];
-        handGuest.innerText = jugadas[comboInvitado[i]];
-
-        // 4. Evaluar la triangulación estricta
-        evaluarRonda(comboInvitado[i], comboOrganizador[i]);
-
-        // 5. Esperar 1.5 segundos para que vean el resultado antes de la siguiente ronda
-        await esperar(1500);
+async function iniciarDuelo(indiceRonda) {
+    // 1. Resetear manos a piedra cerrada
+    handOrg.innerText = jugadas['piedra'];
+    handGuest.innerText = jugadas['piedra'];
+    
+    // Mensajes para dar contexto
+    if (indiceRonda === 0) {
+        resultMessage.innerText = "¡DUELO PRINCIPAL!";
+    } else {
+        resultMessage.innerText = "¡DESEMPATE!";
     }
+    resultMessage.style.color = "white";
+    resultMessage.classList.remove('hidden');
 
-    // Fin de las 3 rondas
-    resultMessage.innerText = oroInvitado > oroOrg ? "¡VICTORIA FINAL!" : oroInvitado === oroOrg ? "¡EMPATE TÉCNICO!" : "FUISTE DERROTADO";
-    resultMessage.style.color = oroInvitado > oroOrg ? "gold" : "white";
+    // Quitar clases por si acaso y forzar reflujo del navegador
+    handOrg.classList.remove('strike-org');
+    handGuest.classList.remove('strike-guest');
+    void handOrg.offsetWidth; 
+
+    // 2. Disparar la animación de los 3 golpes
+    handOrg.classList.add('strike-org');
+    handGuest.classList.add('strike-guest');
+    
+    // 3. El truco visual: Esperar exactamente a que las manos estén en lo más alto del 3er salto (milisegundo 1250 aprox)
+    await esperar(1250); 
+    
+    // Revelar jugadas justo antes de que impacten contra el suelo
+    const tiroOrg = comboOrganizador[indiceRonda];
+    const tiroInv = comboInvitado[indiceRonda];
+    handOrg.innerText = jugadas[tiroOrg];
+    handGuest.innerText = jugadas[tiroInv];
+
+    // 4. Esperar a que termine de caer la animación (milisegundo 1500)
+    await esperar(250); 
+    
+    // 5. Evaluar la jugada
+    evaluarJugada(tiroInv, tiroOrg, indiceRonda);
 }
 
-function evaluarRonda(invitado, organizador) {
+async function evaluarJugada(invitado, organizador, indiceRonda) {
     if (invitado === organizador) {
-        resultMessage.innerText = "EMPATE";
+        resultMessage.innerText = "¡EMPATE!";
         resultMessage.style.color = "gray";
+        
+        await esperar(2000); // Pausa dramática
+        
+        // Si hay un empate, verificamos si quedan reservas
+        if (indiceRonda < 2) {
+            iniciarDuelo(indiceRonda + 1); // Dispara la reserva
+        } else {
+            // Se acabaron las reservas, es un empate total de la partida
+            resultMessage.innerText = "¡EMPATE ABSOLUTO!";
+            resultMessage.style.color = "white";
+        }
     } 
-    // Triangulación de victoria del invitado
+    // Triangulación de victoria
     else if (
         (invitado === 'piedra' && organizador === 'tijera') ||
         (invitado === 'papel' && organizador === 'piedra') ||
         (invitado === 'tijera' && organizador === 'papel')
     ) {
-        resultMessage.innerText = "+100 ORO";
+        resultMessage.innerText = "¡GANASTE EL DESAFÍO!";
         resultMessage.style.color = "gold";
         oroInvitado += 100;
         scoreGuestEl.innerText = oroInvitado;
     } 
-    // Si no es empate y no ganó el invitado, gana el organizador por descarte
     else {
-        resultMessage.innerText = "PIERDES";
+        resultMessage.innerText = "PERDISTE EL DESAFÍO";
         resultMessage.style.color = "red";
         oroOrg += 100;
         scoreOrgEl.innerText = oroOrg;
