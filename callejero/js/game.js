@@ -2,70 +2,88 @@ const handOrg = document.getElementById('hand-org');
 const handGuest = document.getElementById('hand-guest');
 const resultMessage = document.getElementById('result-message');
 const scoreGuestEl = document.getElementById('score-guest');
+const scoreOrgEl = document.getElementById('score-org');
 
-// Íconos básicos (luego los cambiaremos por las URLs de tus imágenes)
-const jugadas = {
-    'piedra': '✊',
-    'papel': '✋',
-    'tijera': '✌️'
-};
+const jugadas = { 'piedra': '✊', 'papel': '✋', 'tijera': '✌️' };
 
+// SIMULACIÓN DE BASE DE DATOS: El Organizador ya dejó estas 3 jugadas.
+const comboOrganizador = ['papel', 'tijera', 'piedra']; 
+let comboInvitado = [];
 let oroInvitado = 0;
+let oroOrg = 0;
 
-function jugar(eleccionInvitado) {
-    // 1. Ocultar botones y mostrar mensaje de tensión
-    document.getElementById('controls').classList.add('hidden');
-    resultMessage.innerText = "¡1, 2, 3...!";
-    resultMessage.classList.remove('hidden');
-    resultMessage.style.color = "white";
-    
-    // 2. Preparar los puños y activar la animación de sacudida
-    handOrg.innerText = jugadas['piedra'];
-    handGuest.innerText = jugadas['piedra'];
-    handOrg.classList.add('shake-org');
-    handGuest.classList.add('shake-guest');
-
-    // 3. Simular el tiempo de tensión (1.2 segundos de animación)
-    setTimeout(() => {
-        // Detener la animación
-        handOrg.classList.remove('shake-org');
-        handGuest.classList.remove('shake-guest');
-
-        // Lógica temporal: El Organizador tira algo al azar
-        const opciones = ['piedra', 'papel', 'tijera'];
-        const eleccionOrg = opciones[Math.floor(Math.random() * opciones.length)];
-
-        // Mostrar las jugadas finales
-        handOrg.innerText = jugadas[eleccionOrg];
-        handGuest.innerText = jugadas[eleccionInvitado];
-
-        // 4. Evaluar ganador
-        determinarGanador(eleccionInvitado, eleccionOrg);
-
-        // 5. Devolver los botones después de 2 segundos para seguir jugando
-        setTimeout(() => {
-            document.getElementById('controls').classList.remove('hidden');
-            resultMessage.classList.add('hidden');
-        }, 2000);
-
-    }, 1200); // 1200 milisegundos de suspenso
+function seleccionarJugada(eleccion) {
+    if (comboInvitado.length < 3) {
+        comboInvitado.push(eleccion);
+        // Actualizar la interfaz visual del combo
+        document.getElementById(`q${comboInvitado.length}`).innerText = jugadas[eleccion];
+        
+        // Si ya eligió 3, arranca la película de la batalla automáticamente
+        if (comboInvitado.length === 3) {
+            document.getElementById('controls').classList.add('hidden');
+            ejecutarBatallaAsincrona();
+        }
+    }
 }
 
-function determinarGanador(invitado, organizador) {
+// Función auxiliar para crear pausas (ritmo de juego)
+const esperar = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function ejecutarBatallaAsincrona() {
+    for (let i = 0; i < 3; i++) {
+        // 1. Preparar ronda (manos en piedra y mensaje)
+        handOrg.innerText = jugadas['piedra'];
+        handGuest.innerText = jugadas['piedra'];
+        resultMessage.innerText = `RONDA ${i + 1}`;
+        resultMessage.style.color = "white";
+        resultMessage.classList.remove('hidden');
+
+        // 2. Activar la animación de agitar (dura 1 segundo: 2 repeticiones de 0.5s)
+        handOrg.classList.add('shake-org');
+        handGuest.classList.add('shake-guest');
+        
+        // Esperamos exactamente 1 segundo que dura la animación CSS
+        await esperar(1000); 
+
+        // 3. Detener animación y REVELAR JUGADAS (Tercer tiempo)
+        handOrg.classList.remove('shake-org');
+        handGuest.classList.remove('shake-guest');
+        handOrg.innerText = jugadas[comboOrganizador[i]];
+        handGuest.innerText = jugadas[comboInvitado[i]];
+
+        // 4. Evaluar la triangulación estricta
+        evaluarRonda(comboInvitado[i], comboOrganizador[i]);
+
+        // 5. Esperar 1.5 segundos para que vean el resultado antes de la siguiente ronda
+        await esperar(1500);
+    }
+
+    // Fin de las 3 rondas
+    resultMessage.innerText = oroInvitado > oroOrg ? "¡VICTORIA FINAL!" : oroInvitado === oroOrg ? "¡EMPATE TÉCNICO!" : "FUISTE DERROTADO";
+    resultMessage.style.color = oroInvitado > oroOrg ? "gold" : "white";
+}
+
+function evaluarRonda(invitado, organizador) {
     if (invitado === organizador) {
-        resultMessage.innerText = "¡EMPATE!";
+        resultMessage.innerText = "EMPATE";
         resultMessage.style.color = "gray";
-    } else if (
+    } 
+    // Triangulación de victoria del invitado
+    else if (
         (invitado === 'piedra' && organizador === 'tijera') ||
         (invitado === 'papel' && organizador === 'piedra') ||
         (invitado === 'tijera' && organizador === 'papel')
     ) {
-        resultMessage.innerText = "¡WINNER!";
+        resultMessage.innerText = "+100 ORO";
         resultMessage.style.color = "gold";
-        oroInvitado += 100; // Sumar 100 de oro si gana el invitado
-        scoreGuestEl.innerText = oroInvitado + " Inv";
-    } else {
-        resultMessage.innerText = "PERDISTE";
+        oroInvitado += 100;
+        scoreGuestEl.innerText = oroInvitado;
+    } 
+    // Si no es empate y no ganó el invitado, gana el organizador por descarte
+    else {
+        resultMessage.innerText = "PIERDES";
         resultMessage.style.color = "red";
+        oroOrg += 100;
+        scoreOrgEl.innerText = oroOrg;
     }
 }
