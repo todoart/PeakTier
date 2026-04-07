@@ -25,7 +25,7 @@ body {
     position: absolute; top: 40%; width: 100%;
     display: flex; justify-content: space-between; padding: 0 20px; z-index: 5;
 }
-.hand { font-size: 80px; transition: transform 0.1s; }
+.hand { font-size: 80px; }
 #hand-guest { transform: scaleX(-1); }
 
 #result-message {
@@ -39,26 +39,38 @@ body {
     position: absolute; bottom: 30px; width: 100%; z-index: 10;
 }
 #queue {
-    text-align: center; color: white; margin-bottom: 15px; font-weight: bold; font-size: 20px;
+    text-align: center; color: white; margin-bottom: 15px; font-weight: bold; font-size: 24px;
 }
-#controls {
-    display: flex; justify-content: space-around;
-}
+.slot-principal { color: gold; margin-right: 15px; border-bottom: 2px solid gold; }
+.slot-reserva { color: gray; margin: 0 5px; font-size: 20px;}
+
+#controls { display: flex; justify-content: space-around; }
 .btn-play {
     padding: 15px 30px; font-size: 24px; border: none; 
     border-radius: 10px; background: #ddd; cursor: pointer;
 }
 .btn-play:active { transform: scale(0.95); }
 
-/* Animación estricta de 2 tiempos */
-.shake-org { animation: shakeLeft 0.5s 2; } /* 2 repeticiones exactas */
-.shake-guest { animation: shakeRight 0.5s 2; }
+/* Animación de 3 golpes (Piedra... Papel... Tijera!) */
+.strike-org { animation: pumpLeft 1.5s linear forwards; }
+.strike-guest { animation: pumpRight 1.5s linear forwards; }
 
-@keyframes shakeLeft {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-40px) rotate(20deg); }
+@keyframes pumpLeft {
+    0% { transform: translateY(0) rotate(0deg); }
+    15% { transform: translateY(-40px) rotate(20deg); }
+    33% { transform: translateY(0) rotate(0deg); } /* Golpe 1 */
+    48% { transform: translateY(-40px) rotate(20deg); }
+    66% { transform: translateY(0) rotate(0deg); } /* Golpe 2 */
+    81% { transform: translateY(-60px) rotate(30deg); } /* Sube más alto para el 3er golpe */
+    100% { transform: translateY(0) rotate(0deg); } /* Impacto final */
 }
-@keyframes shakeRight {
-    0%, 100% { transform: scaleX(-1) translateY(0) rotate(0deg); }
-    50% { transform: scaleX(-1) translateY(-40px) rotate(-20deg); }
+
+@keyframes pumpRight {
+    0% { transform: scaleX(-1) translateY(0) rotate(0deg); }
+    15% { transform: scaleX(-1) translateY(-40px) rotate(-20deg); }
+    33% { transform: scaleX(-1) translateY(0) rotate(0deg); } /* Golpe 1 */
+    48% { transform: scaleX(-1) translateY(-40px) rotate(-20deg); }
+    66% { transform: scaleX(-1) translateY(0) rotate(0deg); } /* Golpe 2 */
+    81% { transform: scaleX(-1) translateY(-60px) rotate(-30deg); } /* Sube más alto para el 3er golpe */
+    100% { transform: scaleX(-1) translateY(0) rotate(0deg); } /* Impacto final */
 }
