@@ -10,6 +10,7 @@ const jugadas = {
     'tijera': '<img src="assets/manos/tijera.png" alt="Tijera">' 
 };
 
+// BASE DE DATOS SIMULADA
 const comboOrganizador = ['papel', 'tijera', 'piedra']; 
 let comboInvitado = [];
 let oroInvitado = 0;
@@ -30,9 +31,15 @@ function seleccionarJugada(eleccion) {
 const esperar = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function iniciarDuelo(indiceRonda) {
+    // Manos en posición de piedra cerradas
     handOrg.innerHTML = jugadas['piedra'];
     handGuest.innerHTML = jugadas['piedra'];
     
+    // Forzar el reinicio de las animaciones y las clases antiguas
+    handOrg.classList.remove('strike-org');
+    handGuest.classList.remove('strike-guest');
+    void handOrg.offsetWidth; // Truco visual para forzar el reinicio
+
     if (indiceRonda === 0) {
         resultMessage.innerText = "¡DUELO PRINCIPAL!";
     } else {
@@ -41,21 +48,20 @@ async function iniciarDuelo(indiceRonda) {
     resultMessage.style.color = "white";
     resultMessage.classList.remove('hidden');
 
-    handOrg.classList.remove('strike-org');
-    handGuest.classList.remove('strike-guest');
-    void handOrg.offsetWidth; 
-
     handOrg.classList.add('strike-org');
     handGuest.classList.add('strike-guest');
     
+    // Revelar en el aire (milisegundo 1250)
     await esperar(1250); 
     
     const tiroOrg = comboOrganizador[indiceRonda];
     const tiroInv = comboInvitado[indiceRonda];
     
+    // Inyectar imágenes finales de la jugada
     handOrg.innerHTML = jugadas[tiroOrg];
     handGuest.innerHTML = jugadas[tiroInv];
 
+    // Terminar caída (milisegundo 1500)
     await esperar(250); 
     
     evaluarJugada(tiroInv, tiroOrg, indiceRonda);
@@ -112,4 +118,8 @@ function reiniciarRonda() {
     resultMessage.classList.add('hidden');
     handOrg.innerHTML = jugadas['piedra'];
     handGuest.innerHTML = jugadas['piedra'];
+    
+    // Limpiar clases antiguas de animación
+    handOrg.classList.remove('strike-org');
+    handGuest.classList.remove('strike-guest');
 }
