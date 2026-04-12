@@ -10,11 +10,13 @@ const jugadas = {
     'tijera': '<img src="assets/manos/tijera.png" alt="Tijera">' 
 };
 
-// BASE DE DATOS SIMULADA
 const comboOrganizador = ['papel', 'tijera', 'piedra']; 
 let comboInvitado = [];
 let oroInvitado = 0;
 let oroOrg = 0;
+
+// VALOR DEL DESAFÍO (Para probar la progresividad)
+const PREMIO_DESAFIO = 100;
 
 function seleccionarJugada(eleccion) {
     if (comboInvitado.length < 3) {
@@ -30,15 +32,32 @@ function seleccionarJugada(eleccion) {
 
 const esperar = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+// FUNCIÓN KINGSHOT: Incrementa el oro progresivamente
+function animarMarcador(elementoMarcador, valorInicial, valorFinal) {
+    let pasos = 20; // Actualizaciones del contador
+    let tiempoTotal = 1000; // Dura 1 segundo
+    let intervaloTiempo = tiempoTotal / pasos;
+    let incremento = (valorFinal - valorInicial) / pasos;
+    let actual = valorInicial;
+
+    let timer = setInterval(() => {
+        actual += incremento;
+        if (actual >= valorFinal) {
+            actual = valorFinal;
+            clearInterval(timer);
+        }
+        // Mostramos el número entero
+        elementoMarcador.innerText = Math.floor(actual);
+    }, intervaloTiempo);
+}
+
 async function iniciarDuelo(indiceRonda) {
-    // Manos en posición de piedra cerradas
     handOrg.innerHTML = jugadas['piedra'];
     handGuest.innerHTML = jugadas['piedra'];
     
-    // Forzar el reinicio de las animaciones y las clases antiguas
     handOrg.classList.remove('strike-org');
     handGuest.classList.remove('strike-guest');
-    void handOrg.offsetWidth; // Truco visual para forzar el reinicio
+    void handOrg.offsetWidth; 
 
     if (indiceRonda === 0) {
         resultMessage.innerText = "¡DUELO PRINCIPAL!";
@@ -51,17 +70,14 @@ async function iniciarDuelo(indiceRonda) {
     handOrg.classList.add('strike-org');
     handGuest.classList.add('strike-guest');
     
-    // Revelar en el aire (milisegundo 1250)
     await esperar(1250); 
     
     const tiroOrg = comboOrganizador[indiceRonda];
     const tiroInv = comboInvitado[indiceRonda];
     
-    // Inyectar imágenes finales de la jugada
     handOrg.innerHTML = jugadas[tiroOrg];
     handGuest.innerHTML = jugadas[tiroInv];
 
-    // Terminar caída (milisegundo 1500)
     await esperar(250); 
     
     evaluarJugada(tiroInv, tiroOrg, indiceRonda);
@@ -79,8 +95,6 @@ async function evaluarJugada(invitado, organizador, indiceRonda) {
         } else {
             resultMessage.innerText = "¡EMPATE ABSOLUTO!";
             resultMessage.style.color = "white";
-            
-            // Reinicia para que sigas probando
             await esperar(3000);
             reiniciarRonda();
         }
@@ -92,8 +106,11 @@ async function evaluarJugada(invitado, organizador, indiceRonda) {
     ) {
         resultMessage.innerText = "¡VICTORIA!";
         resultMessage.style.color = "gold";
-        oroInvitado += 100;
-        scoreGuestEl.innerText = oroInvitado;
+        
+        // EFECTO KINGSHOT APLICADO AQUÍ
+        let oroAnterior = oroInvitado;
+        oroInvitado += PREMIO_DESAFIO;
+        animarMarcador(scoreGuestEl, oroAnterior, oroInvitado);
         
         await esperar(3000);
         reiniciarRonda();
@@ -101,8 +118,11 @@ async function evaluarJugada(invitado, organizador, indiceRonda) {
     else {
         resultMessage.innerText = "DERROTA";
         resultMessage.style.color = "red";
-        oroOrg += 100;
-        scoreOrgEl.innerText = oroOrg;
+        
+        // Efecto para el Organizador si gana
+        let oroAnterior = oroOrg;
+        oroOrg += PREMIO_DESAFIO;
+        animarMarcador(scoreOrgEl, oroAnterior, oroOrg);
         
         await esperar(3000);
         reiniciarRonda();
@@ -118,8 +138,6 @@ function reiniciarRonda() {
     resultMessage.classList.add('hidden');
     handOrg.innerHTML = jugadas['piedra'];
     handGuest.innerHTML = jugadas['piedra'];
-    
-    // Limpiar clases antiguas de animación
     handOrg.classList.remove('strike-org');
     handGuest.classList.remove('strike-guest');
 }
