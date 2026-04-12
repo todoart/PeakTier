@@ -9,33 +9,43 @@
 <body>
     <div id="game-container">
         <div class="bg-layer layer-1"></div>
-        <div class="bg-layer layer-2"></div>
-        <div class="bg-layer layer-3"></div>
 
         <div id="hud">
-            <div class="player-info">Org <span id="score-org">0</span></div>
-            <div class="title-emblem">DESAFÍO CALLEJERO</div>
-            <div class="player-info"><span id="score-guest">0</span> Inv</div>
+            <div class="player-info">
+                <span>Org</span> 
+                <span class="score"><img src="assets/ui/oro.png" class="gold-icon"> <span id="score-org">0</span></span>
+            </div>
+            <div class="title-emblem">DESAFÍO</div>
+            <div class="player-info">
+                <span class="score"><span id="score-guest">0</span> <img src="assets/ui/oro.png" class="gold-icon"></span>
+                <span>Inv</span>
+            </div>
         </div>
 
         <div id="battle-area">
-            <div id="hand-org" class="hand">✊</div> 
-            <div id="hand-guest" class="hand">✊</div> 
+            <div id="hand-org" class="hand"><img src="assets/manos/piedra.png" alt="Piedra"></div> 
+            <div id="hand-guest" class="hand"><img src="assets/manos/piedra.png" alt="Piedra"></div> 
         </div>
 
         <div id="result-message" class="hidden"></div>
 
         <div id="controls-container">
             <div id="queue">
-                <div style="font-size: 14px; color: #aaa;">Principal | Reservas (Desempate)</div>
+                <div class="queue-title">Principal | Reservas</div>
                 <span id="q0" class="slot-principal">_</span> 
                 <span id="q1" class="slot-reserva">_</span> 
                 <span id="q2" class="slot-reserva">_</span>
             </div>
             <div id="controls">
-                <button class="btn-play" onclick="seleccionarJugada('piedra')">✊</button>
-                <button class="btn-play" onclick="seleccionarJugada('papel')">✋</button>
-                <button class="btn-play" onclick="seleccionarJugada('tijera')">✌️</button>
+                <button class="btn-play" onclick="seleccionarJugada('piedra')">
+                    <img src="assets/manos/piedra.png" alt="Piedra">
+                </button>
+                <button class="btn-play" onclick="seleccionarJugada('papel')">
+                    <img src="assets/manos/papel.png" alt="Papel">
+                </button>
+                <button class="btn-play" onclick="seleccionarJugada('tijera')">
+                    <img src="assets/manos/tijera.png" alt="Tijera">
+                </button>
             </div>
         </div>
     </div>
