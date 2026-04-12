@@ -4,7 +4,6 @@ const resultMessage = document.getElementById('result-message');
 const scoreGuestEl = document.getElementById('score-guest');
 const scoreOrgEl = document.getElementById('score-org');
 
-// Ahora guardamos el código HTML de las imágenes en lugar de emojis
 const jugadas = { 
     'piedra': '<img src="assets/manos/piedra.png" alt="Piedra">', 
     'papel': '<img src="assets/manos/papel.png" alt="Papel">', 
@@ -19,7 +18,6 @@ let oroOrg = 0;
 function seleccionarJugada(eleccion) {
     if (comboInvitado.length < 3) {
         comboInvitado.push(eleccion);
-        // Insertamos la imagen en miniatura en el slot correspondiente
         document.getElementById(`q${comboInvitado.length - 1}`).innerHTML = jugadas[eleccion];
         
         if (comboInvitado.length === 3) {
@@ -32,7 +30,6 @@ function seleccionarJugada(eleccion) {
 const esperar = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function iniciarDuelo(indiceRonda) {
-    // Manos en posición de piedra para el inicio de la animación
     handOrg.innerHTML = jugadas['piedra'];
     handGuest.innerHTML = jugadas['piedra'];
     
@@ -51,17 +48,14 @@ async function iniciarDuelo(indiceRonda) {
     handOrg.classList.add('strike-org');
     handGuest.classList.add('strike-guest');
     
-    // Revelar en el aire (1250ms)
     await esperar(1250); 
     
     const tiroOrg = comboOrganizador[indiceRonda];
     const tiroInv = comboInvitado[indiceRonda];
     
-    // Inyectar imágenes finales
     handOrg.innerHTML = jugadas[tiroOrg];
     handGuest.innerHTML = jugadas[tiroInv];
 
-    // Terminar caída (250ms)
     await esperar(250); 
     
     evaluarJugada(tiroInv, tiroOrg, indiceRonda);
@@ -79,6 +73,10 @@ async function evaluarJugada(invitado, organizador, indiceRonda) {
         } else {
             resultMessage.innerText = "¡EMPATE ABSOLUTO!";
             resultMessage.style.color = "white";
+            
+            // Reinicia para que sigas probando
+            await esperar(3000);
+            reiniciarRonda();
         }
     } 
     else if (
@@ -90,16 +88,16 @@ async function evaluarJugada(invitado, organizador, indiceRonda) {
         resultMessage.style.color = "gold";
         oroInvitado += 100;
         scoreGuestEl.innerText = oroInvitado;
+        
+        await esperar(3000);
+        reiniciarRonda();
     } 
     else {
         resultMessage.innerText = "DERROTA";
         resultMessage.style.color = "red";
         oroOrg += 100;
         scoreOrgEl.innerText = oroOrg;
-    }
-    
-    // Reiniciar combo para seguir probando (opcional para testeo)
-    if(invitado !== organizador || indiceRonda === 2) {
+        
         await esperar(3000);
         reiniciarRonda();
     }
